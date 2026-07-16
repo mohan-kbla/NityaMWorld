@@ -1,7 +1,7 @@
 services:
   # 1. Rails Web Service (Puma)
   - type: web
-    name: nityamworld-web
+    name: nityamworld
     env: docker
     plan: free # Can be upgraded to starter/standard as needed
     buildCommand: "./bin/rails assets:precompile && ./bin/rails db:migrate"
