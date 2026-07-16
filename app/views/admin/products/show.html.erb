@@ -1,0 +1,109 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2 class="m-0"><%= @product.name %></h2>
+  <div>
+    <a href="/admin/products/<%= @product.slug %>/edit" class="btn btn-outline-primary"><i class="fa-solid fa-pen me-2"></i>Edit</a>
+    <a href="/admin/products" class="btn btn-light"><i class="fa-solid fa-chevron-left me-2"></i>Back to Products</a>
+  </div>
+</div>
+
+<div class="row g-4">
+  <!-- Main Details -->
+  <div class="col-lg-8">
+    <div class="card border-0 shadow-sm p-4 mb-4">
+      <h5>Product Details</h5>
+      <hr>
+      <div class="row g-3">
+        <div class="col-md-6">
+          <strong class="text-muted d-block small">SKU</strong>
+          <span><%= @product.sku %></span>
+        </div>
+        <div class="col-md-6">
+          <strong class="text-muted d-block small">Weight</strong>
+          <span><%= @product.weight.present? ? "#{@product.weight} kg" : "N/A" %></span>
+        </div>
+        <div class="col-12">
+          <strong class="text-muted d-block small">Short Description</strong>
+          <p><%= @product.short_description.presence || "No short description provided." %></p>
+        </div>
+        <div class="col-12">
+          <strong class="text-muted d-block small">Description</strong>
+          <p><%= @product.description.presence || "No description provided." %></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Product Images -->
+    <div class="card border-0 shadow-sm p-4 mb-4">
+      <h5 class="mb-3">Product Images</h5>
+      <div class="d-flex flex-wrap gap-3">
+        <% if @product.images.attached? %>
+          <% @product.images.each do |image| %>
+            <div class="border rounded p-2 bg-light text-center" style="width: 120px;">
+              <i class="fa-solid fa-image fa-3x text-muted mb-2"></i>
+              <div class="text-truncate small" title="<%= image.filename %>"><%= image.filename %></div>
+            </div>
+          <% end %>
+        <% else %>
+          <p class="text-muted mb-0">No images uploaded for this product.</p>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pricing, Stock & Meta -->
+  <div class="col-lg-4">
+    <div class="card border-0 shadow-sm p-4 mb-4">
+      <h5>Sales Info</h5>
+      <hr>
+      <div class="mb-3">
+        <strong class="text-muted d-block small">Pricing</strong>
+        <% if @product.discounted? %>
+          <div class="fs-4">
+            <span class="text-decoration-line-through text-muted fs-6">₹<%= @product.price %></span>
+            <span class="text-danger font-weight-bold">₹<%= @product.discount_price %></span>
+          </div>
+        <% else %>
+          <div class="fs-4 font-weight-bold">₹<%= @product.price %></div>
+        <% end %>
+      </div>
+      <div class="mb-3">
+        <strong class="text-muted d-block small">Stock Status</strong>
+        <div class="d-flex align-items-center">
+          <span class="badge bg-<%= @product.stock > 5 ? 'success' : 'danger' %> fs-6 px-3 py-2">
+            <%= @product.stock %> in stock
+          </span>
+        </div>
+      </div>
+      <div class="mb-3">
+        <strong class="text-muted d-block small">Classifications</strong>
+        <div class="d-flex flex-wrap gap-2 mt-1">
+          <span class="badge bg-<%= @product.featured? ? 'primary' : 'light text-muted border' %>">Featured</span>
+          <span class="badge bg-<%= @product.best_seller? ? 'info' : 'light text-muted border' %>">Best Seller</span>
+          <span class="badge bg-<%= @product.new_arrival? ? 'success' : 'light text-muted border' %>">New Arrival</span>
+        </div>
+      </div>
+      <div class="mb-3">
+        <strong class="text-muted d-block small">Category</strong>
+        <span><%= @product.category.name %></span>
+      </div>
+      <div>
+        <strong class="text-muted d-block small">Brand</strong>
+        <span><%= @product.brand.name %></span>
+      </div>
+    </div>
+
+    <!-- SEO Meta -->
+    <div class="card border-0 shadow-sm p-4">
+      <h5>SEO Metadata</h5>
+      <hr>
+      <div class="mb-3">
+        <strong class="text-muted d-block small">Meta Title</strong>
+        <span class="small"><%= @product.meta_title.presence || "Defaults to product name" %></span>
+      </div>
+      <div>
+        <strong class="text-muted d-block small">Meta Description</strong>
+        <p class="small text-muted mb-0"><%= @product.meta_description.presence || "Defaults to product description snippet" %></p>
+      </div>
+    </div>
+  </div>
+</div>

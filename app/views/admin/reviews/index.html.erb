@@ -1,0 +1,65 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2 class="m-0">Customer Reviews</h2>
+</div>
+
+<div class="card border-0 shadow-sm p-4">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>Customer</th>
+          <th>Product</th>
+          <th>Rating</th>
+          <th>Title</th>
+          <th>Comment</th>
+          <th>Status</th>
+          <th class="text-end">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if @reviews.any? %>
+          <% @reviews.each do |review| %>
+            <tr>
+              <td><strong><%= review.user.first_name %> <%= review.user.last_name %></strong></td>
+              <td><%= review.product.name %></td>
+              <td>
+                <span class="text-warning">
+                  <% review.rating.times do %>
+                    <i class="fa-solid fa-star small"></i>
+                  <% end %>
+                </span>
+              </td>
+              <td><%= review.title %></td>
+              <td><%= truncate(review.body, length: 100) %></td>
+              <td>
+                <span class="badge bg-<%= case review.status
+                  when 'approved' then 'success'
+                  when 'pending' then 'warning'
+                  else 'danger' end %>">
+                  <%= review.status.capitalize %>
+                </span>
+              </td>
+              <td class="text-end">
+                <div class="d-flex gap-1 justify-content-end">
+                  <% if review.status == "pending" %>
+                    <%= button_to "Approve", approve_admin_review_path(review), method: :patch, class: "btn btn-success btn-sm" %>
+                    <%= button_to "Reject", reject_admin_review_path(review), method: :patch, class: "btn btn-outline-danger btn-sm" %>
+                  <% end %>
+                  <% if policy(review).destroy? %>
+                    <%= button_to admin_review_path(review), method: :delete, data: { confirm: "Are you sure?" }, class: "btn btn-light btn-sm text-danger" do %>
+                      <i class="fa-solid fa-trash"></i>
+                    <% end %>
+                  <% end %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        <% else %>
+          <tr>
+            <td colspan="7" class="text-center text-muted py-3">No reviews found.</td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

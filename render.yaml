@@ -1,0 +1,47 @@
+services:
+  # 1. Rails Web Service (Puma)
+  - type: web
+    name: nityamworld-web
+    env: docker
+    plan: free # Can be upgraded to starter/standard as needed
+    buildCommand: "./bin/rails assets:precompile && ./bin/rails db:migrate"
+    startCommand: "./bin/rails server -b 0.0.0.0"
+    envVars:
+      - key: RAILS_ENV
+        value: production
+      - key: RAILS_MASTER_KEY
+        sync: false # User will input this securely in Render dashboard
+      - key: DATABASE_URL
+        sync: false # MySQL database connection string (e.g., mysql2://user:pass@host/db)
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: nityamworld-redis
+          property: connectionString
+      - key: RAILS_LOG_TO_STDOUT
+        value: "true"
+
+  # 2. Sidekiq Background Worker
+  - type: worker
+    name: nityamworld-worker
+    env: docker
+    plan: free
+    startCommand: "bundle exec sidekiq"
+    envVars:
+      - key: RAILS_ENV
+        value: production
+      - key: RAILS_MASTER_KEY
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: nityamworld-redis
+          property: connectionString
+
+  # 3. Redis Instance (for Sidekiq queues)
+  - type: redis
+    name: nityamworld-redis
+    plan: free
+    ipAllowList: [] # Private access only

@@ -1,0 +1,156 @@
+<div class="container py-5">
+  <div class="row g-5">
+    <!-- Left Column: Address Forms -->
+    <div class="col-lg-8">
+      <div class="card border-0 shadow-sm p-4 bg-white">
+        <h4 class="fw-bold mb-4">Checkout Details</h4>
+
+        <%= form_with url: checkout_index_path, method: :post, local: true do |f| %>
+          
+          <!-- Guest email if not logged in -->
+          <% unless user_signed_in? %>
+            <div class="mb-4">
+              <h5 class="fw-bold text-muted small text-uppercase">1. Guest Contact Info</h5>
+              <div class="row">
+                <div class="col-12">
+                  <label class="form-label">Email Address</label>
+                  <%= email_field_tag :guest_email, nil, class: "form-control", required: true, placeholder: "you@example.com" %>
+                  <small class="text-muted">Used to send your receipt and tracking updates.</small>
+                </div>
+              </div>
+            </div>
+            <hr class="mb-4">
+          <% end %>
+
+          <!-- Shipping Address -->
+          <div class="mb-4">
+            <h5 class="fw-bold text-muted small text-uppercase mb-3">2. Shipping Address</h5>
+            <%= fields_for :shipping_address, @shipping_address do |sa| %>
+              <div class="row g-3">
+                <div class="col-md-12">
+                  <%= sa.label :full_name, "Full Name", class: "form-label" %>
+                  <%= sa.text_field :full_name, class: "form-control", required: true %>
+                </div>
+                <div class="col-md-12">
+                  <%= sa.label :address_line1, "Address Line 1", class: "form-label" %>
+                  <%= sa.text_field :address_line1, class: "form-control", required: true %>
+                </div>
+                <div class="col-md-12">
+                  <%= sa.label :address_line2, "Address Line 2 (Optional)", class: "form-label" %>
+                  <%= sa.text_field :address_line2, class: "form-control" %>
+                </div>
+                <div class="col-md-6">
+                  <%= sa.label :city, class: "form-label" %>
+                  <%= sa.text_field :city, class: "form-control", required: true %>
+                </div>
+                <div class="col-md-6">
+                  <%= sa.label :state, class: "form-label" %>
+                  <%= sa.text_field :state, class: "form-control", required: true %>
+                </div>
+                <div class="col-md-6">
+                  <%= sa.label :zip_code, "ZIP Code", class: "form-label" %>
+                  <%= sa.text_field :zip_code, class: "form-control", required: true %>
+                </div>
+                <div class="col-md-6">
+                  <%= sa.label :country, class: "form-label" %>
+                  <%= sa.text_field :country, class: "form-control", required: true, value: "India" %>
+                </div>
+                <div class="col-md-12">
+                  <%= sa.label :phone, "Phone Number", class: "form-label" %>
+                  <%= sa.text_field :phone, class: "form-control", required: true %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+
+          <div class="form-check mb-4">
+            <%= check_box_tag :billing_same_as_shipping, "1", true, class: "form-check-input", onchange: "document.getElementById('billing-section').style.display = this.checked ? 'none' : 'block';" %>
+            <label class="form-check-label" for="billing_same_as_shipping">
+              Billing address is same as shipping address
+            </label>
+          </div>
+
+          <!-- Billing Address (Hidden by default) -->
+          <div id="billing-section" class="mb-4" style="display: none;">
+            <hr class="mb-4">
+            <h5 class="fw-bold text-muted small text-uppercase mb-3">3. Billing Address</h5>
+            <%= fields_for :billing_address, @billing_address do |ba| %>
+              <div class="row g-3">
+                <div class="col-md-12">
+                  <%= ba.label :full_name, "Full Name", class: "form-label" %>
+                  <%= ba.text_field :full_name, class: "form-control" %>
+                </div>
+                <div class="col-md-12">
+                  <%= ba.label :address_line1, "Address Line 1", class: "form-label" %>
+                  <%= ba.text_field :address_line1, class: "form-control" %>
+                </div>
+                <div class="col-md-12">
+                  <%= ba.label :address_line2, "Address Line 2 (Optional)", class: "form-label" %>
+                  <%= ba.text_field :address_line2, class: "form-control" %>
+                </div>
+                <div class="col-md-6">
+                  <%= ba.label :city, class: "form-label" %>
+                  <%= ba.text_field :city, class: "form-control" %>
+                </div>
+                <div class="col-md-6">
+                  <%= ba.label :state, class: "form-label" %>
+                  <%= ba.text_field :state, class: "form-control" %>
+                </div>
+                <div class="col-md-6">
+                  <%= ba.label :zip_code, "ZIP Code", class: "form-label" %>
+                  <%= ba.text_field :zip_code, class: "form-control" %>
+                </div>
+                <div class="col-md-6">
+                  <%= ba.label :country, class: "form-label" %>
+                  <%= ba.text_field :country, class: "form-control", value: "India" %>
+                </div>
+                <div class="col-md-12">
+                  <%= ba.label :phone, "Phone Number", class: "form-label" %>
+                  <%= ba.text_field :phone, class: "form-control" %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+
+          <div class="mt-4">
+            <%= f.submit "Continue to Payment", class: "btn btn-accent btn-lg w-100 rounded-pill" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Right Column: Order Summary (Static) -->
+    <div class="col-lg-4">
+      <div class="card border-0 shadow-sm p-4 bg-white">
+        <h5 class="fw-bold mb-3">Order Summary</h5>
+        <hr class="mt-0">
+        <table class="table table-borderless table-sm small">
+          <tr>
+            <td class="text-muted">Subtotal:</td>
+            <td class="text-end">₹<%= number_with_precision(@subtotal, precision: 2) %></td>
+          </tr>
+          <% if @discount > 0 %>
+            <tr class="text-danger">
+              <td>Discount:</td>
+              <td class="text-end">-₹<%= number_with_precision(@discount, precision: 2) %></td>
+            </tr>
+          <% end %>
+          <tr>
+            <td class="text-muted">Shipping:</td>
+            <td class="text-end">
+              <% if @shipping_fee > 0 %>
+                ₹<%= number_with_precision(@shipping_fee, precision: 2) %>
+              <% else %>
+                <span class="text-success fw-bold">FREE</span>
+              <% end %>
+            </td>
+          </tr>
+          <tr class="border-top font-weight-bold fs-5">
+            <td class="pt-3">Grand Total:</td>
+            <td class="text-end pt-3">₹<%= number_with_precision(@total, precision: 2) %></td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

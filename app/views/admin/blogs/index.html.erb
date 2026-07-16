@@ -1,0 +1,55 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2 class="m-0">Blog Posts</h2>
+  <a href="/admin/blogs/new" class="btn btn-primary"><i class="fa-solid fa-plus me-2"></i>Add Post</a>
+</div>
+
+<div class="card border-0 shadow-sm p-4">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>Title</th>
+          <th>Slug</th>
+          <th>Status</th>
+          <th>Published At</th>
+          <th>Created At</th>
+          <th class="text-end">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if @blogs.any? %>
+          <% @blogs.each do |blog| %>
+            <tr>
+              <td><strong><%= blog.title %></strong></td>
+              <td><code><%= blog.slug %></code></td>
+              <td>
+                <span class="badge bg-<%= blog.published? ? 'success' : 'warning' %>">
+                  <%= blog.published? ? "Published" : "Draft" %>
+                </span>
+              </td>
+              <td><%= blog.published_at.present? ? blog.published_at.strftime("%b %d, %Y %H:%M") : "-" %></td>
+              <td><%= blog.created_at.strftime("%b %d, %Y") %></td>
+              <td class="text-end">
+                <div class="btn-group">
+                  <a href="/admin/blogs/<%= blog.slug %>" class="btn btn-light btn-sm"><i class="fa-solid fa-eye"></i></a>
+                  <a href="/admin/blogs/<%= blog.slug %>/edit" class="btn btn-light btn-sm text-primary"><i class="fa-solid fa-pen"></i></a>
+                  <%= button_to admin_blog_path(blog), method: :delete, data: { confirm: "Are you sure?" }, class: "btn btn-light btn-sm text-danger" do %>
+                    <i class="fa-solid fa-trash"></i>
+                  <% end %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        <% else %>
+          <tr>
+            <td colspan="6" class="text-center text-muted py-3">No blog posts found.</td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+  
+  <div class="mt-3">
+    <%= paginate @blogs %>
+  </div>
+</div>

@@ -1,0 +1,59 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2 class="m-0">Coupons</h2>
+  <a href="/admin/coupons/new" class="btn btn-primary"><i class="fa-solid fa-plus me-2"></i>Add Coupon</a>
+</div>
+
+<div class="card border-0 shadow-sm p-4">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>Code</th>
+          <th>Discount</th>
+          <th>Min Order Amount</th>
+          <th>Usage</th>
+          <th>Expiry Date</th>
+          <th>Status</th>
+          <th class="text-end">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if @coupons.any? %>
+          <% @coupons.each do |coupon| %>
+            <tr>
+              <td><strong><%= coupon.code %></strong></td>
+              <td class="text-capitalize">
+                <%= coupon.discount_type %>: 
+                <%= coupon.discount_type == 'percentage' ? "#{coupon.discount_value}%" : "₹#{coupon.discount_value}" %>
+              </td>
+              <td>₹<%= coupon.min_order_amount %></td>
+              <td>
+                <%= coupon.usage_count %> / <%= coupon.usage_limit.presence || "∞" %>
+              </td>
+              <td>
+                <%= coupon.expiry_date.present? ? coupon.expiry_date.strftime("%b %d, %Y") : "No Expiry" %>
+              </td>
+              <td>
+                <span class="badge bg-<%= coupon.active && !coupon.expired? ? 'success' : 'danger' %>">
+                  <%= coupon.active && !coupon.expired? ? "Active" : "Inactive" %>
+                </span>
+              </td>
+              <td class="text-end">
+                <div class="btn-group">
+                  <a href="/admin/coupons/<%= coupon.id %>/edit" class="btn btn-light btn-sm text-primary"><i class="fa-solid fa-pen"></i></a>
+                  <%= button_to admin_coupon_path(coupon), method: :delete, data: { confirm: "Are you sure?" }, class: "btn btn-light btn-sm text-danger" do %>
+                    <i class="fa-solid fa-trash"></i>
+                  <% end %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        <% else %>
+          <tr>
+            <td colspan="7" class="text-center text-muted py-3">No coupons found.</td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

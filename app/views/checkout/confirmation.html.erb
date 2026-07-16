@@ -1,0 +1,38 @@
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-7">
+      <div class="card border-0 shadow-sm p-5 text-center bg-white rounded-4">
+        <div class="text-success fs-1 mb-4">
+          <i class="fa-solid fa-circle-check fa-3x"></i>
+        </div>
+        <h2 class="fw-bold mb-2">Order Confirmed!</h2>
+        <p class="text-muted mb-4">Thank you for your purchase. Your order has been successfully placed.</p>
+        
+        <div class="bg-light p-4 rounded-3 text-start mb-4 border border-light">
+          <div class="row g-3">
+            <div class="col-6">
+              <span class="text-muted small d-block">Order Reference</span>
+              <strong>#<%= @order.id %></strong>
+            </div>
+            <div class="col-6">
+              <span class="text-muted small d-block">Total Amount</span>
+              <strong>₹<%= number_with_precision(@order.total_amount, precision: 2) %></strong>
+            </div>
+            <div class="col-6">
+              <span class="text-muted small d-block">Payment Method</span>
+              <strong class="text-uppercase"><%= @order.payment_method.upcase %></strong>
+            </div>
+            <div class="col-6">
+              <span class="text-muted small d-block">Payment Status</span>
+              <strong class="text-uppercase"><%= @order.payment_status.upcase %></strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="d-grid gap-2 col-md-8 mx-auto">
+          <a href="/shop" class="btn btn-accent btn-lg rounded-pill">Continue Shopping</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,129 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2 class="m-0">Order #<%= @order.id %></h2>
+  <div>
+    <a href="/admin/orders/<%= @order.id %>/invoice" target="_blank" class="btn btn-outline-secondary me-2"><i class="fa-solid fa-print me-2"></i>Print Invoice</a>
+    <a href="/admin/orders/<%= @order.id %>/packing_slip" target="_blank" class="btn btn-outline-secondary me-2"><i class="fa-solid fa-box-open me-2"></i>Print Packing Slip</a>
+    <a href="/admin/orders" class="btn btn-light"><i class="fa-solid fa-chevron-left me-2"></i>Back to Orders</a>
+  </div>
+</div>
+
+<div class="row g-4">
+  <!-- Order details & Items -->
+  <div class="col-lg-8">
+    <div class="card border-0 shadow-sm p-4 mb-4">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <strong class="text-muted d-block small">Shipping Address</strong>
+          <span class="d-block font-weight-bold"><%= @order.shipping_address.full_name %></span>
+          <span class="d-block small"><%= @order.shipping_address.one_line_summary %></span>
+          <span class="d-block small">Phone: <%= @order.shipping_address.phone %></span>
+        </div>
+        <div class="col-md-6">
+          <strong class="text-muted d-block small">Billing Address</strong>
+          <span class="d-block font-weight-bold"><%= @order.billing_address.full_name %></span>
+          <span class="d-block small"><%= @order.billing_address.one_line_summary %></span>
+          <span class="d-block small">Phone: <%= @order.billing_address.phone %></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Items table -->
+    <div class="card border-0 shadow-sm p-4 mb-4">
+      <h5 class="mb-3">Order Items</h5>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>Product</th>
+              <th>SKU</th>
+              <th>Quantity</th>
+              <th>Price</th>
+              <th class="text-end">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @order.order_items.each do |item| %>
+              <tr>
+                <td><%= item.product.name %></td>
+                <td><code><%= item.product.sku %></code></td>
+                <td><%= item.quantity %></td>
+                <td>₹<%= number_with_precision(item.price, precision: 2) %></td>
+                <td class="text-end">₹<%= number_with_precision(item.total_price, precision: 2) %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="row mt-4 justify-content-end">
+        <div class="col-md-5">
+          <table class="table table-borderless table-sm small">
+            <tr>
+              <td class="text-muted">Subtotal:</td>
+              <td class="text-end">₹<%= number_with_precision(@order.subtotal_amount, precision: 2) %></td>
+            </tr>
+            <tr>
+              <td class="text-muted">Shipping:</td>
+              <td class="text-end">₹<%= number_with_precision(@order.shipping_amount, precision: 2) %></td>
+            </tr>
+            <tr>
+              <td class="text-muted">Discount:</td>
+              <td class="text-end text-danger">-₹<%= number_with_precision(@order.discount_amount, precision: 2) %></td>
+            </tr>
+            <tr class="border-top font-weight-bold fs-6">
+              <td>Total:</td>
+              <td class="text-end">₹<%= number_with_precision(@order.total_amount, precision: 2) %></td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sidebar: Status & Tracking updates -->
+  <div class="col-lg-4">
+    <!-- Status management -->
+    <div class="card border-0 shadow-sm p-4 mb-4">
+      <h5>Manage Order</h5>
+      <hr>
+      <%= form_with model: [:admin, @order], local: true, class: "mb-3" do |f| %>
+        <div class="mb-3">
+          <%= f.label :status, "Order Status", class: "form-label small text-muted" %>
+          <%= f.select :status, [["Pending", "pending"], ["Confirmed", "confirmed"], ["Packed", "packed"], ["Shipped", "shipped"], ["Delivered", "delivered"]], {}, { class: "form-select" } %>
+        </div>
+        <div class="mb-3">
+          <%= f.label :payment_status, "Payment Status", class: "form-label small text-muted" %>
+          <%= f.select :payment_status, [["Pending", "pending"], ["Paid", "paid"], ["Failed", "failed"]], {}, { class: "form-select" } %>
+        </div>
+        <div class="mb-3">
+          <%= f.label :carrier, "Shipping Carrier", class: "form-label small text-muted" %>
+          <%= f.text_field :carrier, class: "form-control", placeholder: "e.g., DHL, FedEx" %>
+        </div>
+        <div class="mb-3">
+          <%= f.label :tracking_number, "Tracking Number", class: "form-label small text-muted" %>
+          <%= f.text_field :tracking_number, class: "form-control", placeholder: "Tracking ID" %>
+        </div>
+        <div class="mb-3">
+          <%= f.label :notes, "Admin Notes", class: "form-label small text-muted" %>
+          <%= f.text_area :notes, rows: 2, class: "form-control", placeholder: "Private notes..." %>
+        </div>
+        <%= f.submit "Update Order", class: "btn btn-primary w-100" %>
+      <% end %>
+    </div>
+
+    <!-- Quick actions -->
+    <div class="card border-0 shadow-sm p-4">
+      <h5>Admin Actions</h5>
+      <hr>
+      <div class="d-grid gap-2">
+        <% if @order.status != "cancelled" && @order.status != "refunded" %>
+          <%= button_to "Cancel Order", cancel_admin_order_path(@order), method: :post, data: { confirm: "Are you sure you want to cancel this order? This will restore stock." }, class: "btn btn-warning w-100" %>
+        <% end %>
+        
+        <% if policy(@order).refund? && (@order.status == "cancelled" || @order.payment_status == "paid") && @order.status != "refunded" %>
+          <%= button_to "Issue Full Refund", refund_admin_order_path(@order), method: :post, data: { confirm: "Are you sure you want to refund this order?" }, class: "btn btn-danger w-100" %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

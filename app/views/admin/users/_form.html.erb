@@ -1,0 +1,52 @@
+<%= form_with model: [:admin, user], local: true, class: "row g-3" do |f| %>
+  <% if user.errors.any? %>
+    <div class="col-12 alert alert-danger">
+      <h6 class="alert-heading font-weight-bold"><%= pluralize(user.errors.count, "error") %> prohibited this user from being saved:</h6>
+      <ul class="mb-0 small">
+        <% user.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="col-md-6">
+    <%= f.label :first_name, "First Name", class: "form-label" %>
+    <%= f.text_field :first_name, class: "form-control", required: true %>
+  </div>
+
+  <div class="col-md-6">
+    <%= f.label :last_name, "Last Name", class: "form-label" %>
+    <%= f.text_field :last_name, class: "form-control", required: true %>
+  </div>
+
+  <div class="col-md-6">
+    <%= f.label :email, class: "form-label" %>
+    <%= f.email_field :email, class: "form-control", required: true %>
+  </div>
+
+  <div class="col-md-6">
+    <%= f.label :phone, class: "form-label" %>
+    <%= f.text_field :phone, class: "form-control", required: true %>
+  </div>
+
+  <div class="col-md-6">
+    <%= f.label :password, class: "form-label" %>
+    <%= f.password_field :password, class: "form-control", placeholder: ("Leave blank if not changing" if user.persisted?) %>
+  </div>
+
+  <div class="col-md-6">
+    <%= f.label :password_confirmation, "Confirm Password", class: "form-label" %>
+    <%= f.password_field :password_confirmation, class: "form-control" %>
+  </div>
+
+  <div class="col-md-6">
+    <%= f.label :role, "Access Role", class: "form-label" %>
+    <%= f.select :role, [["Customer", "customer"], ["Staff Operator", "staff"], ["Administrator", "admin"]], {}, { class: "form-select", required: true } %>
+  </div>
+
+  <div class="col-12 mt-4 d-flex gap-2">
+    <%= f.submit class: "btn btn-primary" %>
+    <a href="/admin/users" class="btn btn-outline-secondary">Cancel</a>
+  </div>
+<% end %>

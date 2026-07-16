@@ -1,0 +1,48 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2 class="m-0">Categories</h2>
+  <a href="/admin/categories/new" class="btn btn-primary"><i class="fa-solid fa-plus me-2"></i>Add Category</a>
+</div>
+
+<div class="card border-0 shadow-sm p-4">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>Name</th>
+          <th>Slug</th>
+          <th>Parent Category</th>
+          <th>Description</th>
+          <th class="text-end">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if @categories.any? %>
+          <% @categories.each do |category| %>
+            <tr>
+              <td><strong><%= category.name %></strong></td>
+              <td><code><%= category.slug %></code></td>
+              <td><%= category.parent&.name || "-" %></td>
+              <td><%= truncate(category.description, length: 80) %></td>
+              <td class="text-end">
+                <div class="btn-group">
+                  <a href="/admin/categories/<%= category.slug %>/edit" class="btn btn-light btn-sm text-primary"><i class="fa-solid fa-pen"></i></a>
+                  <%= button_to admin_category_path(category), method: :delete, data: { confirm: "Are you sure? This will delete all subcategories." }, class: "btn btn-light btn-sm text-danger" do %>
+                    <i class="fa-solid fa-trash"></i>
+                  <% end %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        <% else %>
+          <tr>
+            <td colspan="5" class="text-center text-muted py-3">No categories found.</td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+  
+  <div class="mt-3">
+    <%= paginate @categories %>
+  </div>
+</div>

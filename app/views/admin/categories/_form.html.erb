@@ -1,0 +1,52 @@
+<%= form_with model: [:admin, category], local: true, class: "row g-3" do |f| %>
+  <% if category.errors.any? %>
+    <div class="col-12 alert alert-danger">
+      <h6 class="alert-heading font-weight-bold"><%= pluralize(category.errors.count, "error") %> prohibited this category from being saved:</h6>
+      <ul class="mb-0 small">
+        <% category.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="col-md-6">
+    <%= f.label :name, class: "form-label" %>
+    <%= f.text_field :name, class: "form-control", required: true %>
+  </div>
+
+  <div class="col-md-6">
+    <%= f.label :parent_id, "Parent Category", class: "form-label" %>
+    <!-- Filter out current category from parent list to prevent cyclical loops -->
+    <% options = category.persisted? ? Category.where.not(id: category.id) : Category.all %>
+    <%= f.collection_select :parent_id, options, :id, :name, { include_blank: "No Parent (Root)" }, { class: "form-select" } %>
+  </div>
+
+  <div class="col-12">
+    <%= f.label :description, class: "form-label" %>
+    <%= f.text_area :description, rows: 4, class: "form-control" %>
+  </div>
+
+  <div class="col-12">
+    <%= f.label :image, "Category Banner Image", class: "form-label" %>
+    <%= f.file_field :image, class: "form-control" %>
+  </div>
+
+  <hr>
+  <h5>SEO Options</h5>
+
+  <div class="col-md-6">
+    <%= f.label :meta_title, class: "form-label" %>
+    <%= f.text_field :meta_title, class: "form-control" %>
+  </div>
+
+  <div class="col-md-6">
+    <%= f.label :meta_description, class: "form-label" %>
+    <%= f.text_area :meta_description, rows: 2, class: "form-control" %>
+  </div>
+
+  <div class="col-12 mt-4 d-flex gap-2">
+    <%= f.submit class: "btn btn-primary" %>
+    <a href="/admin/categories" class="btn btn-outline-secondary">Cancel</a>
+  </div>
+<% end %>

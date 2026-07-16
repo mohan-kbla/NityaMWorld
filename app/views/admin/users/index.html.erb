@@ -1,0 +1,53 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2 class="m-0">Users & Roles</h2>
+  <a href="/admin/users/new" class="btn btn-primary"><i class="fa-solid fa-plus me-2"></i>Add User</a>
+</div>
+
+<div class="card border-0 shadow-sm p-4">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Phone</th>
+          <th>Role</th>
+          <th>Created At</th>
+          <th class="text-end">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if @users.any? %>
+          <% @users.each do |user| %>
+            <tr>
+              <td><strong><%= user.first_name %> <%= user.last_name %></strong></td>
+              <td><%= user.email %></td>
+              <td><%= user.phone %></td>
+              <td>
+                <span class="badge bg-<%= case user.role
+                  when 'admin' then 'danger'
+                  when 'staff' then 'info'
+                  else 'secondary' end %> text-uppercase">
+                  <%= user.role %>
+                </span>
+              </td>
+              <td><%= user.created_at.strftime("%b %d, %Y") %></td>
+              <td class="text-end">
+                <div class="btn-group">
+                  <a href="/admin/users/<%= user.id %>/edit" class="btn btn-light btn-sm text-primary"><i class="fa-solid fa-pen"></i></a>
+                  <%= button_to admin_user_path(user), method: :delete, data: { confirm: "Are you sure?" }, class: "btn btn-light btn-sm text-danger" do %>
+                    <i class="fa-solid fa-trash"></i>
+                  <% end %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        <% else %>
+          <tr>
+            <td colspan="6" class="text-center text-muted py-3">No users found.</td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

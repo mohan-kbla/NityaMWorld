@@ -1,0 +1,136 @@
+<div class="container py-5">
+  <div class="row g-4">
+    <!-- Sidebar Filters -->
+    <div class="col-lg-3">
+      <button class="btn btn-outline-dark w-100 d-lg-none mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#filtersCollapse">
+        <i class="fa-solid fa-filter me-2"></i>Filter Products
+      </button>
+
+      <div class="collapse d-lg-block" id="filtersCollapse">
+        <div class="card border-0 shadow-sm p-4">
+          <h5 class="fw-bold mb-3"><i class="fa-solid fa-filter me-2 text-warning"></i>Filter Products</h5>
+          <hr class="mt-0">
+          
+          <%= search_form_for @q, url: shop_index_path, method: :get, class: "row g-3" do |f| %>
+            <!-- Search by keyword -->
+            <div class="col-12">
+              <%= f.label :name_cont, "Keywords", class: "form-label small text-muted" %>
+              <%= f.search_field :name_cont, class: "form-control", placeholder: "Search..." %>
+            </div>
+
+            <!-- Category filter -->
+            <div class="col-12">
+              <%= f.label :category_id_eq, "Category", class: "form-label small text-muted" %>
+              <%= f.collection_select :category_id_eq, Category.all, :id, :name, { include_blank: "All Categories" }, { class: "form-select" } %>
+            </div>
+
+            <!-- Brand filter -->
+            <div class="col-12">
+              <%= f.label :brand_id_eq, "Brand", class: "form-label small text-muted" %>
+              <%= f.collection_select :brand_id_eq, @brands, :id, :name, { include_blank: "All Brands" }, { class: "form-select" } %>
+            </div>
+
+            <!-- Price range -->
+            <div class="col-12">
+              <label class="form-label small text-muted">Price Range (₹)</label>
+              <div class="d-flex gap-2">
+                <%= f.number_field :price_gteq, class: "form-control", placeholder: "Min" %>
+                <%= f.number_field :price_lteq, class: "form-control", placeholder: "Max" %>
+              </div>
+            </div>
+
+            <!-- Keep sort param if active -->
+            <%= hidden_field_tag :sort, params[:sort] if params[:sort].present? %>
+
+            <div class="col-12 d-flex gap-2 mt-4">
+              <%= f.submit "Apply Filters", class: "btn btn-dark w-100" %>
+              <a href="/shop" class="btn btn-outline-secondary w-100">Reset</a>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Catalog Grid -->
+    <div class="col-lg-9">
+      <!-- Top header bar -->
+      <div class="d-flex justify-content-between align-items-center mb-4 bg-white p-3 rounded shadow-sm border border-light">
+        <span class="text-muted"><%= @products.total_count %> products found</span>
+        <div class="d-flex align-items-center gap-2">
+          <small class="text-muted text-nowrap">Sort by:</small>
+          <!-- Custom sort dropdown updating parameter -->
+          <select class="form-select form-select-sm" onchange="location = this.value;">
+            <option value="<%= url_for(params.permit!.merge(sort: 'newest')) %>" <%= 'selected' if params[:sort] == 'newest' || params[:sort].blank? %>>Newest Arrivals</option>
+            <option value="<%= url_for(params.permit!.merge(sort: 'price_asc')) %>" <%= 'selected' if params[:sort] == 'price_asc' %>>Price: Low to High</option>
+            <option value="<%= url_for(params.permit!.merge(sort: 'price_desc')) %>" <%= 'selected' if params[:sort] == 'price_desc' %>>Price: High to Low</option>
+            <option value="<%= url_for(params.permit!.merge(sort: 'rating_desc')) %>" <%= 'selected' if params[:sort] == 'rating_desc' %>>Customer Rating</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Grid -->
+      <div class="row g-4">
+        <% if @products.any? %>
+          <% @products.each do |product| %>
+            <div class="col-6 col-md-4">
+              <div class="card card-premium p-3 h-100 d-flex flex-column justify-content-between">
+                <div>
+                  <div class="mb-2 text-center" style="height: 160px; background-color: #f1f5f9; display: flex; align-items: center; justify-content: center; border-radius: 8px; overflow: hidden;">
+                    <% first_image = product.images.detect { |img| img.image? } %>
+                    <% if first_image %>
+                      <%= image_tag first_image, class: "img-fluid h-100", style: "object-fit: cover;" %>
+                    <% else %>
+                      <i class="fa-solid fa-image fa-3x text-secondary"></i>
+                    <% end %>
+                  </div>
+                  <small class="text-muted d-block mb-1"><%= product.brand.name %></small>
+                  <h6 class="fw-bold text-truncate mb-2" title="<%= product.name %>">
+                    <a href="/shop/<%= product.slug %>" class="text-dark text-decoration-none"><%= product.name %></a>
+                  </h6>
+                  <div class="d-flex align-items-center gap-2 mb-2">
+                    <span class="text-warning small">
+                      <% product.rating.to_i.times do %>
+                        <i class="fa-solid fa-star"></i>
+                      <% end %>
+                      <% (5 - product.rating.to_i).times do %>
+                        <i class="fa-regular fa-star"></i>
+                      <% end %>
+                    </span>
+                    <small class="text-muted">(<%= product.reviews_count %>)</small>
+                  </div>
+                  <p class="small text-muted mb-3"><%= truncate(product.short_description, length: 70) %></p>
+                </div>
+                <div>
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                      <% if product.discounted? %>
+                        <span class="text-decoration-line-through text-muted small">₹<%= product.price %></span>
+                        <span class="text-danger fw-bold d-block">₹<%= product.discount_price %></span>
+                      <% else %>
+                        <span class="fw-bold">₹<%= product.price %></span>
+                      <% end %>
+                    </div>
+                    <%= button_to add_item_cart_path(product_id: product.id, quantity: 1), method: :post, class: "btn btn-accent btn-sm rounded-pill px-3" do %>
+                      <i class="fa-solid fa-cart-plus me-1"></i>Add
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        <% else %>
+          <div class="col-12 text-center py-5">
+            <i class="fa-solid fa-magnifying-glass fa-3x text-muted mb-3"></i>
+            <h5>No products match your filters.</h5>
+            <p class="text-muted">Try adjusting your filters or search keywords.</p>
+            <a href="/shop" class="btn btn-dark rounded-pill px-4 mt-2">Clear All Filters</a>
+          </div>
+        <% end %>
+      </div>
+
+      <div class="mt-4">
+        <%= paginate @products %>
+      </div>
+    </div>
+  </div>
+</div>

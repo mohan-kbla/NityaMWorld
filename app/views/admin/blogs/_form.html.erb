@@ -1,0 +1,50 @@
+<%= form_with model: blog, url: blog.persisted? ? admin_blog_path(blog) : admin_blogs_path, local: true, class: "row g-3" do |f| %>
+  <% if blog.errors.any? %>
+    <div class="col-12 alert alert-danger">
+      <h6 class="alert-heading font-weight-bold"><%= pluralize(blog.errors.count, "error") %> prohibited this blog post from being saved:</h6>
+      <ul class="mb-0 small">
+        <% blog.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="col-12">
+    <%= f.label :title, class: "form-label" %>
+    <%= f.text_field :title, class: "form-control", required: true %>
+  </div>
+
+  <div class="col-12">
+    <%= f.label :content, class: "form-label" %>
+    <%= f.text_area :content, rows: 10, class: "form-control", required: true %>
+  </div>
+
+  <div class="col-md-6">
+    <%= f.label :published_at, "Publish Date (leave blank for Draft)", class: "form-label" %>
+    <%= f.datetime_field :published_at, class: "form-control" %>
+  </div>
+
+  <div class="col-md-6">
+    <%= f.label :image, "Featured Image", class: "form-label" %>
+    <%= f.file_field :image, class: "form-control" %>
+  </div>
+
+  <hr>
+  <h5>SEO Options</h5>
+
+  <div class="col-md-6">
+    <%= f.label :meta_title, class: "form-label" %>
+    <%= f.text_field :meta_title, class: "form-control" %>
+  </div>
+
+  <div class="col-md-6">
+    <%= f.label :meta_description, class: "form-label" %>
+    <%= f.text_area :meta_description, rows: 2, class: "form-control" %>
+  </div>
+
+  <div class="col-12 mt-4 d-flex gap-2">
+    <%= f.submit class: "btn btn-primary" %>
+    <a href="/admin/blogs" class="btn btn-outline-secondary">Cancel</a>
+  </div>
+<% end %>

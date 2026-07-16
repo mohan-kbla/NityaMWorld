@@ -1,0 +1,175 @@
+<div class="container py-5">
+  <div class="row g-5">
+    <!-- Left Column: Images -->
+    <div class="col-lg-6">
+      <div class="card border-0 shadow-sm p-4 text-center bg-white mb-4">
+        <div style="height: 350px; background-color: #f8fafc; display: flex; align-items: center; justify-content: center; border-radius: 8px;">
+          <% first_image = @product.images.detect { |img| img.image? } %>
+          <% if first_image %>
+            <%= image_tag first_image, class: "img-fluid rounded", style: "max-height: 100%; object-fit: contain;" %>
+          <% else %>
+            <i class="fa-solid fa-image fa-6x text-secondary"></i>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Details & Add to Cart -->
+    <div class="col-lg-6">
+      <small class="text-uppercase text-muted letter-spacing-1"><%= @product.brand.name %></small>
+      <h1 class="fw-bold mb-3 mt-1"><%= @product.name %></h1>
+      
+      <!-- Ratings -->
+      <div class="d-flex align-items-center gap-3 mb-4">
+        <div class="text-warning fs-5">
+          <% @product.rating.to_i.times do %>
+            <i class="fa-solid fa-star"></i>
+          <% end %>
+          <% (5 - @product.rating.to_i).times do %>
+            <i class="fa-regular fa-star"></i>
+          <% end %>
+        </div>
+        <span class="text-muted small">(<%= @product.reviews_count %> Customer Reviews)</span>
+      </div>
+
+      <!-- Pricing -->
+      <div class="mb-4">
+        <% if @product.discounted? %>
+          <span class="fs-4 text-decoration-line-through text-muted me-2">₹<%= @product.price %></span>
+          <span class="fs-2 text-danger fw-bold">₹<%= @product.discount_price %></span>
+          <span class="badge bg-danger ms-2">Save ₹<%= @product.price - @product.discount_price %></span>
+        <% else %>
+          <span class="fs-2 fw-bold">₹<%= @product.price %></span>
+        <% end %>
+      </div>
+
+      <!-- Short Description -->
+      <p class="text-muted mb-4"><%= @product.short_description %></p>
+
+      <!-- Stock Status & Add to Cart -->
+      <div class="bg-white p-4 rounded shadow-sm border border-light mb-4">
+        <div class="mb-3">
+          <strong class="text-muted d-block small mb-1">Availability</strong>
+          <% if @product.stock > 0 %>
+            <span class="badge bg-success fs-6"><%= @product.stock %> items left in stock</span>
+          <% else %>
+            <span class="badge bg-danger fs-6">Out of Stock</span>
+          <% end %>
+        </div>
+
+        <% if @product.stock > 0 %>
+          <%= form_with url: add_item_cart_path(product_id: @product.id), method: :post, class: "row g-3 align-items-end" do |f| %>
+            <div class="col-md-4">
+              <%= f.label :quantity, "Quantity", class: "form-label small text-muted" %>
+              <%= f.select :quantity, (1..[@product.stock, 10].min).map { |n| [n, n] }, {}, { class: "form-select" } %>
+            </div>
+            <div class="col-md-8">
+              <%= f.submit "Add to Shopping Cart", class: "btn btn-accent btn-lg w-100 rounded-pill" %>
+            </div>
+          <% end %>
+        <% end %>
+      </div>
+
+      <!-- Wishlist toggle -->
+      <% if user_signed_in? %>
+        <%= button_to wishlists_path(product_id: @product.id), method: :post, class: "btn btn-outline-dark rounded-pill px-4" do %>
+          <i class="fa-solid fa-heart me-2 text-danger"></i>Add to Wishlist
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Long Description Tab -->
+  <div class="row mt-5">
+    <div class="col-12">
+      <div class="bg-white p-4 rounded shadow-sm border border-light">
+        <h4 class="fw-bold mb-3">Product Description</h4>
+        <div class="text-muted" style="white-space: pre-wrap;"><%= @product.description %></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Product Videos Section -->
+  <% attached_videos = @product.images.select { |file| file.video? } %>
+  <% if attached_videos.any? %>
+    <div class="row mt-4">
+      <div class="col-12">
+        <div class="bg-white p-4 rounded shadow-sm border border-light">
+          <h4 class="fw-bold mb-3">Product Demonstration Videos</h4>
+          <div class="row g-3">
+            <% attached_videos.each do |video| %>
+              <div class="col-md-6">
+                <video src="<%= url_for(video) %>" controls class="w-100 rounded border" style="max-height: 320px;"></video>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Reviews Section -->
+  <div class="row mt-5">
+    <div class="col-lg-8">
+      <div class="bg-white p-4 rounded shadow-sm border border-light mb-4">
+        <h4 class="fw-bold mb-4">Customer Reviews</h4>
+        
+        <% if @approved_reviews.any? %>
+          <div class="list-group list-group-flush">
+            <% @approved_reviews.each do |review| %>
+              <div class="list-group-item px-0 py-3">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <h6 class="fw-bold m-0"><%= review.user.first_name %> <%= review.user.last_name %></h6>
+                  <span class="text-warning small">
+                    <% review.rating.times do %>
+                      <i class="fa-solid fa-star"></i>
+                    <% end %>
+                    <% (5 - review.rating).times do %>
+                      <i class="fa-regular fa-star"></i>
+                    <% end %>
+                  </span>
+                </div>
+                <strong class="d-block mb-1 text-dark"><%= review.title %></strong>
+                <p class="text-muted small mb-0"><%= review.body %></p>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <p class="text-muted mb-0">No reviews yet. Be the first to review this product!</p>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Review Form -->
+    <div class="col-lg-4">
+      <div class="bg-white p-4 rounded shadow-sm border border-light">
+        <h5 class="fw-bold mb-3">Write a Review</h5>
+        <hr class="mt-0">
+        <% if user_signed_in? %>
+          <%= form_with model: @new_review, url: reviews_path, local: true, class: "row g-3" do |f| %>
+            <%= f.hidden_field :product_id, value: @product.id %>
+            <div class="col-12">
+              <%= f.label :rating, "Your Rating", class: "form-label small text-muted" %>
+              <%= f.select :rating, [["5 Stars", 5], ["4 Stars", 4], ["3 Stars", 3], ["2 Stars", 2], ["1 Star", 1]], {}, { class: "form-select", required: true } %>
+            </div>
+            <div class="col-12">
+              <%= f.label :title, "Review Title", class: "form-label small text-muted" %>
+              <%= f.text_field :title, class: "form-control", required: true, placeholder: "e.g., Amazing product!" %>
+            </div>
+            <div class="col-12">
+              <%= f.label :body, "Comment", class: "form-label small text-muted" %>
+              <%= f.text_area :body, rows: 4, class: "form-control", required: true, placeholder: "Describe your experience..." %>
+            </div>
+            <div class="col-12">
+              <%= f.submit "Submit Review", class: "btn btn-dark w-100 rounded-pill" %>
+            </div>
+          <% end %>
+        <% else %>
+          <p class="text-muted small text-center mb-0">
+            Please <a href="/users/sign_in">Log In</a> to write a review.
+          </p>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

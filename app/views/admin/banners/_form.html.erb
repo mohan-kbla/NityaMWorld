@@ -1,0 +1,49 @@
+<%= form_with model: [:admin, banner], local: true, class: "row g-3" do |f| %>
+  <% if banner.errors.any? %>
+    <div class="col-12 alert alert-danger">
+      <h6 class="alert-heading font-weight-bold"><%= pluralize(banner.errors.count, "error") %> prohibited this banner from being saved:</h6>
+      <ul class="mb-0 small">
+        <% banner.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="col-md-6">
+    <%= f.label :title, class: "form-label" %>
+    <%= f.text_field :title, class: "form-control", required: true %>
+  </div>
+
+  <div class="col-md-6">
+    <%= f.label :subtitle, class: "form-label" %>
+    <%= f.text_field :subtitle, class: "form-control" %>
+  </div>
+
+  <div class="col-md-8">
+    <%= f.label :link_url, "Redirect URL", class: "form-label" %>
+    <%= f.text_field :link_url, class: "form-control", placeholder: "/offers/summer" %>
+  </div>
+
+  <div class="col-md-4">
+    <%= f.label :position, "Display Position (0 is first)", class: "form-label" %>
+    <%= f.number_field :position, class: "form-control", required: true %>
+  </div>
+
+  <div class="col-md-8">
+    <%= f.label :image, "Banner Image File", class: "form-label" %>
+    <%= f.file_field :image, class: "form-control" %>
+  </div>
+
+  <div class="col-md-4 d-flex align-items-end">
+    <div class="form-check mb-2">
+      <%= f.check_box :active, class: "form-check-input" %>
+      <%= f.label :active, class: "form-check-label" %>
+    </div>
+  </div>
+
+  <div class="col-12 mt-4 d-flex gap-2">
+    <%= f.submit class: "btn btn-primary" %>
+    <a href="/admin/banners" class="btn btn-outline-secondary">Cancel</a>
+  </div>
+<% end %>

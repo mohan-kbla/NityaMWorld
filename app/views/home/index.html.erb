@@ -1,0 +1,213 @@
+<!-- Hero Slider -->
+<% if @banners.any? %>
+  <div id="heroCarousel" class="carousel slide mb-5" data-bs-ride="carousel" data-bs-interval="4000">
+    <div class="carousel-inner rounded-4 shadow-sm overflow-hidden">
+      <% @banners.each_with_index do |banner, index| %>
+        <div class="carousel-item <%= 'active' if index == 0 %> bg-dark text-white" 
+             style="min-height: 400px; 
+                    background: <%= banner.image.attached? ? "linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)), url('#{url_for(banner.image)}') no-repeat center center; background-size: cover;" : "linear-gradient(135deg, #1e3a8a, #0f172a);" %>">
+          <div class="container d-flex flex-column justify-content-center align-items-center text-center" style="min-height: 400px; padding-top: 60px; padding-bottom: 60px;">
+            <h1 class="display-5 fw-bold mb-3"><%= banner.title %></h1>
+            <% if banner.subtitle.present? %>
+              <p class="lead mb-4"><%= banner.subtitle %></p>
+            <% end %>
+            <% if banner.link_url.present? %>
+              <a href="<%= banner.link_url %>" class="btn btn-accent btn-lg px-4 rounded-pill">Shop Now</a>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+    <% if @banners.size > 1 %>
+      <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon"></span>
+      </button>
+      <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+        <span class="carousel-control-next-icon"></span>
+      </button>
+    <% end %>
+  </div>
+<% else %>
+  <!-- Default Minimal Hero -->
+  <div class="bg-primary text-white py-5 text-center mb-5" style="background: linear-gradient(135deg, #1e3a8a, #0f172a) !important;">
+    <div class="container py-5">
+      <h1 class="display-4 fw-bold">Welcome to NityaMWorld</h1>
+      <p class="lead">Premium quality homely foods, lifestyle cycles, and organic essentials.</p>
+      <a href="/shop" class="btn btn-accent btn-lg px-4 rounded-pill mt-3">Explore Catalog</a>
+    </div>
+  </div>
+<% end %>
+
+<div class="container">
+  <!-- Categories Grid -->
+  <section class="mb-5">
+    <h3 class="fw-bold mb-4 text-center">Shop by Category</h3>
+    <div class="row g-3 justify-content-center">
+      <% @featured_categories.each do |cat| %>
+        <div class="col-6 col-md-4 col-lg-2">
+          <a href="/shop?q[category_id_eq]=<%= cat.id %>" class="text-decoration-none">
+            <div class="card card-premium text-center p-2 h-100">
+              <div class="mb-2 overflow-hidden rounded bg-light" style="height: 100px; display: flex; align-items: center; justify-content: center;">
+                <% if cat.image.attached? %>
+                  <%= image_tag cat.image, class: "img-fluid h-100 w-100", style: "object-fit: cover;" %>
+                <% else %>
+                  <i class="fa-solid fa-folder fa-2x text-warning"></i>
+                <% end %>
+              </div>
+              <h6 class="fw-bold text-dark m-0 small text-truncate"><%= cat.name %></h6>
+            </div>
+          </a>
+        </div>
+      <% end %>
+    </div>
+  </section>
+
+  <!-- Featured Products Grid -->
+  <section class="mb-5">
+    <h3 class="fw-bold mb-4">Featured Products</h3>
+    <div class="row g-4">
+      <% if @featured_products.any? %>
+        <% @featured_products.each do |product| %>
+          <div class="col-6 col-md-4 col-lg-3">
+            <div class="card card-premium p-3 h-100 d-flex flex-column justify-content-between">
+              <div>
+                <div class="mb-2 text-center" style="height: 150px; background-color: #f1f5f9; display: flex; align-items: center; justify-content: center; border-radius: 8px; overflow: hidden;">
+                  <% first_image = product.images.detect { |img| img.image? } %>
+                  <% if first_image %>
+                    <%= image_tag first_image, class: "img-fluid h-100", style: "object-fit: cover;" %>
+                  <% else %>
+                    <i class="fa-solid fa-image fa-3x text-secondary"></i>
+                  <% end %>
+                </div>
+                <small class="text-muted d-block mb-1"><%= product.brand.name %></small>
+                <h6 class="fw-bold text-truncate mb-2" title="<%= product.name %>">
+                  <a href="/shop/<%= product.slug %>" class="text-dark text-decoration-none"><%= product.name %></a>
+                </h6>
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  <span class="text-warning small">
+                    <% product.rating.to_i.times do %>
+                      <i class="fa-solid fa-star"></i>
+                    <% end %>
+                    <% (5 - product.rating.to_i).times do %>
+                      <i class="fa-regular fa-star"></i>
+                    <% end %>
+                  </span>
+                  <small class="text-muted">(<%= product.reviews_count %>)</small>
+                </div>
+              </div>
+              <div>
+                <div class="d-flex justify-content-between align-items-center">
+                  <div>
+                    <% if product.discounted? %>
+                      <span class="text-decoration-line-through text-muted small">₹<%= product.price %></span>
+                      <span class="text-danger fw-bold d-block">₹<%= product.discount_price %></span>
+                    <% else %>
+                      <span class="fw-bold">₹<%= product.price %></span>
+                    <% end %>
+                  </div>
+                  <%= button_to add_item_cart_path(product_id: product.id, quantity: 1), method: :post, class: "btn btn-accent btn-sm rounded-pill px-3" do %>
+                    <i class="fa-solid fa-cart-plus me-1"></i>Add
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      <% else %>
+        <p class="text-muted text-center py-4 col-12">No products featured yet.</p>
+      <% end %>
+    </div>
+  </section>
+
+  <!-- Best Sellers Grid -->
+  <section class="mb-5">
+    <h3 class="fw-bold mb-4">Best Sellers</h3>
+    <div class="row g-4">
+      <% if @best_sellers.any? %>
+        <% @best_sellers.each do |product| %>
+          <div class="col-6 col-md-4 col-lg-3">
+            <div class="card card-premium p-3 h-100 d-flex flex-column justify-content-between">
+              <div>
+                <div class="mb-2 text-center" style="height: 150px; background-color: #f1f5f9; display: flex; align-items: center; justify-content: center; border-radius: 8px; overflow: hidden;">
+                  <% first_image = product.images.detect { |img| img.image? } %>
+                  <% if first_image %>
+                    <%= image_tag first_image, class: "img-fluid h-100", style: "object-fit: cover;" %>
+                  <% else %>
+                    <i class="fa-solid fa-image fa-3x text-secondary"></i>
+                  <% end %>
+                </div>
+                <small class="text-muted d-block mb-1"><%= product.brand.name %></small>
+                <h6 class="fw-bold text-truncate mb-2" title="<%= product.name %>">
+                  <a href="/shop/<%= product.slug %>" class="text-dark text-decoration-none"><%= product.name %></a>
+                </h6>
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  <span class="text-warning small">
+                    <% product.rating.to_i.times do %>
+                      <i class="fa-solid fa-star"></i>
+                    <% end %>
+                    <% (5 - product.rating.to_i).times do %>
+                      <i class="fa-regular fa-star"></i>
+                    <% end %>
+                  </span>
+                  <small class="text-muted">(<%= product.reviews_count %>)</small>
+                </div>
+              </div>
+              <div>
+                <div class="d-flex justify-content-between align-items-center">
+                  <div>
+                    <% if product.discounted? %>
+                      <span class="text-decoration-line-through text-muted small">₹<%= product.price %></span>
+                      <span class="text-danger fw-bold d-block">₹<%= product.discount_price %></span>
+                    <% else %>
+                      <span class="fw-bold">₹<%= product.price %></span>
+                    <% end %>
+                  </div>
+                  <%= button_to add_item_cart_path(product_id: product.id, quantity: 1), method: :post, class: "btn btn-accent btn-sm rounded-pill px-3" do %>
+                    <i class="fa-solid fa-cart-plus me-1"></i>Add
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      <% else %>
+        <p class="text-muted text-center py-4 col-12">No best selling products cataloged yet.</p>
+      <% end %>
+    </div>
+  </section>
+
+  <!-- Testimonials Carousel Section -->
+  <% if @testimonials.any? %>
+    <section class="my-5 bg-white p-5 rounded border border-light text-center shadow-sm">
+      <h3 class="fw-bold mb-4">What Our Customers Say</h3>
+      <div id="testimonialsCarousel" class="carousel slide" data-bs-ride="carousel">
+        <div class="carousel-inner">
+          <% @testimonials.each_with_index do |t, index| %>
+            <div class="carousel-item <%= 'active' if index == 0 %>">
+              <div class="row justify-content-center">
+                <div class="col-md-8">
+                  <span class="text-warning fs-3 mb-2 d-block">
+                    <% t.rating.times do %>
+                      <i class="fa-solid fa-star"></i>
+                    <% end %>
+                  </span>
+                  <p class="fs-5 text-muted px-4 font-italic">"<%= t.content %>"</p>
+                  <h6 class="fw-bold m-0 mt-3 text-dark"><%= t.author_name %></h6>
+                  <small class="text-muted text-uppercase small"><%= t.author_designation %></small>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+        <% if @testimonials.size > 1 %>
+          <button class="carousel-control-prev btn btn-light rounded-circle" type="button" data-bs-target="#testimonialsCarousel" data-bs-slide="prev" style="width: 40px; height: 40px; top: 50%;">
+            <span class="carousel-control-prev-icon filter-dark" style="filter: invert(1);"></span>
+          </button>
+          <button class="carousel-control-next btn btn-light rounded-circle" type="button" data-bs-target="#testimonialsCarousel" data-bs-slide="next" style="width: 40px; height: 40px; top: 50%;">
+            <span class="carousel-control-next-icon filter-dark" style="filter: invert(1);"></span>
+          </button>
+        <% end %>
+      </div>
+    </section>
+  <% end %>
+</div>

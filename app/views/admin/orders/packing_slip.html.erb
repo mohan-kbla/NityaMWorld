@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Packing Slip - Order #<%= @order.id %></title>
+  <style>
+    body { font-family: sans-serif; font-size: 14px; margin: 40px; color: #333; }
+    .header { display: flex; justify-content: space-between; border-bottom: 2px solid #ddd; padding-bottom: 20px; margin-bottom: 30px; }
+    .title { font-size: 24px; font-weight: bold; }
+    .details { display: flex; justify-content: space-between; margin-bottom: 30px; }
+    .details-col { width: 100%; }
+    .details-title { font-weight: bold; border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-bottom: 10px; text-uppercase: true; font-size: 12px; color: #666; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+    th { background: #f5f5f5; border-bottom: 2px solid #ddd; padding: 10px; text-align: left; }
+    td { padding: 10px; border-bottom: 1px solid #eee; }
+    @media print {
+      body { margin: 0; }
+      .no-print { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="no-print" style="margin-bottom: 20px;">
+    <button onclick="window.print()" style="padding: 10px 20px; font-size: 14px; cursor: pointer;">Print Packing Slip</button>
+  </div>
+
+  <div class="header">
+    <div>
+      <div class="title">NityaMWorld</div>
+      <div>Order Shipment Packing Slip</div>
+    </div>
+    <div style="text-align: right;">
+      <div style="font-size: 18px; font-weight: bold;">PACKING SLIP</div>
+      <div>Order #<%= @order.id %></div>
+      <div>Date: <%= @order.created_at.strftime("%B %d, %Y") %></div>
+    </div>
+  </div>
+
+  <div class="details">
+    <div class="details-col">
+      <div class="details-title">Ship To</div>
+      <strong><%= @order.shipping_address.full_name %></strong><br>
+      <%= @order.shipping_address.address_line1 %><br>
+      <% if @order.shipping_address.address_line2.present? %>
+        <%= @order.shipping_address.address_line2 %><br>
+      <% end %>
+      <%= @order.shipping_address.city %>, <%= @order.shipping_address.state %> - <%= @order.shipping_address.zip_code %><br>
+      <%= @order.shipping_address.country %><br>
+      Phone: <%= @order.shipping_address.phone %>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Product Description</th>
+        <th>SKU</th>
+        <th style="text-align: center; width: 15%;">Quantity Ordered</th>
+        <th style="text-align: center; width: 15%;">Shipped Qty</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @order.order_items.each do |item| %>
+        <tr>
+          <td>
+            <strong><%= item.product.name %></strong>
+            <% if item.product.weight.present? %>
+              <small style="color: #666; display: block;">Weight: <%= item.product.weight %> kg</small>
+            <% end %>
+          </td>
+          <td><code><%= item.product.sku %></code></td>
+          <td style="text-align: center;"><%= item.quantity %></td>
+          <td style="border-bottom: 1px solid #999; text-align: center;">&nbsp;</td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+
+  <% if @order.notes.present? %>
+    <div style="margin-top: 40px; border: 1px solid #ddd; padding: 15px; border-radius: 4px; background: #fafafa;">
+      <strong style="display: block; margin-bottom: 5px; font-size: 12px; color: #666;">Customer Notes:</strong>
+      <%= @order.notes %>
+    </div>
+  <% end %>
+</body>
+</html>

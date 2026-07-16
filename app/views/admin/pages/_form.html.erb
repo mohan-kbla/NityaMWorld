@@ -1,0 +1,47 @@
+<%= form_with model: page, url: page.persisted? ? admin_page_path(page) : admin_pages_path, local: true, class: "row g-3" do |f| %>
+  <% if page.errors.any? %>
+    <div class="col-12 alert alert-danger">
+      <h6 class="alert-heading font-weight-bold"><%= pluralize(page.errors.count, "error") %> prohibited this page from being saved:</h6>
+      <ul class="mb-0 small">
+        <% page.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="col-12">
+    <%= f.label :title, class: "form-label" %>
+    <%= f.text_field :title, class: "form-control", required: true %>
+  </div>
+
+  <div class="col-12">
+    <%= f.label :content, class: "form-label" %>
+    <%= f.text_area :content, rows: 10, class: "form-control", required: true %>
+  </div>
+
+  <div class="col-md-6">
+    <div class="form-check mb-2">
+      <%= f.check_box :active, class: "form-check-input" %>
+      <%= f.label :active, "Active (Show in navigation)", class: "form-check-label" %>
+    </div>
+  </div>
+
+  <hr>
+  <h5>SEO Options</h5>
+
+  <div class="col-md-6">
+    <%= f.label :meta_title, class: "form-label" %>
+    <%= f.text_field :meta_title, class: "form-control" %>
+  </div>
+
+  <div class="col-md-6">
+    <%= f.label :meta_description, class: "form-label" %>
+    <%= f.text_area :meta_description, rows: 2, class: "form-control" %>
+  </div>
+
+  <div class="col-12 mt-4 d-flex gap-2">
+    <%= f.submit class: "btn btn-primary" %>
+    <a href="/admin/pages" class="btn btn-outline-secondary">Cancel</a>
+  </div>
+<% end %>

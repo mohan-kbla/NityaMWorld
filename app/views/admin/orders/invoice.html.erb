@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Invoice - Order #<%= @order.id %></title>
+  <style>
+    body { font-family: sans-serif; font-size: 14px; margin: 40px; color: #333; }
+    .header { display: flex; justify-content: space-between; border-bottom: 2px solid #ddd; padding-bottom: 20px; margin-bottom: 30px; }
+    .title { font-size: 24px; font-weight: bold; }
+    .details { display: flex; justify-content: space-between; margin-bottom: 30px; }
+    .details-col { width: 48%; }
+    .details-title { font-weight: bold; border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-bottom: 10px; text-uppercase: true; font-size: 12px; color: #666; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+    th { background: #f5f5f5; border-bottom: 2px solid #ddd; padding: 10px; text-align: left; }
+    td { padding: 10px; border-bottom: 1px solid #eee; }
+    .totals { width: 40%; margin-left: auto; text-align: right; }
+    .totals table { margin-bottom: 0; }
+    .totals td { padding: 5px 0; border: none; }
+    .totals tr.grand-total td { font-size: 16px; font-weight: bold; border-top: 1px solid #ddd; padding-top: 10px; }
+    @media print {
+      body { margin: 0; }
+      .no-print { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="no-print" style="margin-bottom: 20px;">
+    <button onclick="window.print()" style="padding: 10px 20px; font-size: 14px; cursor: pointer;">Print Invoice</button>
+  </div>
+
+  <div class="header">
+    <div>
+      <div class="title">NityaMWorld</div>
+      <div>E-commerce Application</div>
+    </div>
+    <div style="text-align: right;">
+      <div style="font-size: 18px; font-weight: bold;">INVOICE</div>
+      <div>Order #<%= @order.id %></div>
+      <div>Date: <%= @order.created_at.strftime("%B %d, %Y") %></div>
+    </div>
+  </div>
+
+  <div class="details">
+    <div class="details-col">
+      <div class="details-title">Shipped To</div>
+      <strong><%= @order.shipping_address.full_name %></strong><br>
+      <%= @order.shipping_address.address_line1 %><br>
+      <% if @order.shipping_address.address_line2.present? %>
+        <%= @order.shipping_address.address_line2 %><br>
+      <% end %>
+      <%= @order.shipping_address.city %>, <%= @order.shipping_address.state %> - <%= @order.shipping_address.zip_code %><br>
+      <%= @order.shipping_address.country %><br>
+      Phone: <%= @order.shipping_address.phone %>
+    </div>
+    <div class="details-col">
+      <div class="details-title">Billed To</div>
+      <strong><%= @order.billing_address.full_name %></strong><br>
+      <%= @order.billing_address.address_line1 %><br>
+      <% if @order.billing_address.address_line2.present? %>
+        <%= @order.billing_address.address_line2 %><br>
+      <% end %>
+      <%= @order.billing_address.city %>, <%= @order.billing_address.state %> - <%= @order.billing_address.zip_code %><br>
+      <%= @order.billing_address.country %><br>
+      Phone: <%= @order.billing_address.phone %>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Product</th>
+        <th>SKU</th>
+        <th style="text-align: center;">Qty</th>
+        <th style="text-align: right;">Unit Price</th>
+        <th style="text-align: right;">Total</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @order.order_items.each do |item| %>
+        <tr>
+          <td><%= item.product.name %></td>
+          <td><code><%= item.product.sku %></code></td>
+          <td style="text-align: center;"><%= item.quantity %></td>
+          <td style="text-align: right;">₹<%= number_with_precision(item.price, precision: 2) %></td>
+          <td style="text-align: right;">₹<%= number_with_precision(item.total_price, precision: 2) %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+
+  <div class="totals">
+    <table>
+      <tr>
+        <td>Subtotal:</td>
+        <td>₹<%= number_with_precision(@order.subtotal_amount, precision: 2) %></td>
+      </tr>
+      <tr>
+        <td>Shipping:</td>
+        <td>₹<%= number_with_precision(@order.shipping_amount, precision: 2) %></td>
+      </tr>
+      <% if @order.discount_amount > 0 %>
+        <tr style="color: red;">
+          <td>Discount:</td>
+          <td>-₹<%= number_with_precision(@order.discount_amount, precision: 2) %></td>
+        </tr>
+      <% end %>
+      <tr class="grand-total">
+        <td>Grand Total:</td>
+        <td>₹<%= number_with_precision(@order.total_amount, precision: 2) %></td>
+      </tr>
+    </table>
+  </div>
+</body>
+</html>

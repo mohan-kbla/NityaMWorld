@@ -1,0 +1,80 @@
+<div class="container py-5">
+  <div class="row g-5">
+    <div class="col-lg-8">
+      <div class="card border-0 shadow-sm p-4 bg-white mb-4">
+        <h4 class="fw-bold mb-4">Select Payment Method</h4>
+
+        <%= form_with url: payment_callback_checkout_index_path, method: :post, local: true do |f| %>
+          <div class="mb-4">
+            <strong class="text-muted d-block small mb-3">Shipping to:</strong>
+            <p class="m-0"><%= @shipping_address.full_name %> &middot; <%= @shipping_address.one_line_summary %></p>
+          </div>
+
+          <hr class="mb-4">
+
+          <!-- Method options -->
+          <div class="form-check p-3 border rounded mb-3 d-flex align-items-center justify-content-between">
+            <div>
+              <%= f.radio_button :payment_method, "cod", checked: true, class: "form-check-input ms-0 me-3" %>
+              <label class="form-check-label fw-bold" for="payment_method_cod">
+                <i class="fa-solid fa-truck-ramp-box me-2 text-primary"></i>Cash on Delivery (COD)
+              </label>
+              <small class="text-muted d-block ms-5">Pay with cash when your shipment is delivered.</small>
+            </div>
+          </div>
+
+          <div class="form-check p-3 border rounded mb-4 d-flex align-items-center justify-content-between">
+            <div>
+              <%= f.radio_button :payment_method, "razorpay", class: "form-check-input ms-0 me-3" %>
+              <label class="form-check-label fw-bold" for="payment_method_razorpay">
+                <i class="fa-solid fa-credit-card me-2 text-warning"></i>Pay Online (Razorpay)
+              </label>
+              <small class="text-muted d-block ms-5">Secure instant payments via Cards, UPI, NetBanking.</small>
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <%= f.label :notes, "Order Notes / Instructions (Optional)", class: "form-label small text-muted" %>
+            <%= f.text_area :notes, rows: 2, class: "form-control", placeholder: "e.g., Leave at the door" %>
+          </div>
+
+          <%= f.submit "Place Order", class: "btn btn-accent btn-lg w-100 rounded-pill" %>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Summary -->
+    <div class="col-lg-4">
+      <div class="card border-0 shadow-sm p-4 bg-white">
+        <h5 class="fw-bold mb-3">Order Summary</h5>
+        <hr class="mt-0">
+        <table class="table table-borderless table-sm small">
+          <tr>
+            <td class="text-muted">Subtotal:</td>
+            <td class="text-end">₹<%= number_with_precision(@subtotal, precision: 2) %></td>
+          </tr>
+          <% if @discount > 0 %>
+            <tr class="text-danger">
+              <td>Discount:</td>
+              <td class="text-end">-₹<%= number_with_precision(@discount, precision: 2) %></td>
+            </tr>
+          <% end %>
+          <tr>
+            <td class="text-muted">Shipping:</td>
+            <td class="text-end">
+              <% if @shipping_fee > 0 %>
+                ₹<%= number_with_precision(@shipping_fee, precision: 2) %>
+              <% else %>
+                <span class="text-success fw-bold">FREE</span>
+              <% end %>
+            </td>
+          </tr>
+          <tr class="border-top font-weight-bold fs-5">
+            <td class="pt-3">Grand Total:</td>
+            <td class="text-end pt-3">₹<%= number_with_precision(@total, precision: 2) %></td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

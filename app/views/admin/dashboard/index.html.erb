@@ -1,0 +1,141 @@
+<div class="row g-4 mb-4">
+  <!-- Revenue Card -->
+  <div class="col-md-4">
+    <div class="card card-stat bg-primary text-white p-4 h-100">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <h6 class="text-uppercase text-white-50 small">Total Revenue</h6>
+          <h2 class="display-6 font-weight-bold">₹<%= number_with_precision(@total_revenue, precision: 2, delimiter: ",") %></h2>
+        </div>
+        <div class="fs-1 text-white-50">
+          <i class="fa-solid fa-indian-rupee-sign"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Orders Card -->
+  <div class="col-md-4">
+    <div class="card card-stat bg-success text-white p-4 h-100">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <h6 class="text-uppercase text-white-50 small">Total Orders</h6>
+          <h2 class="display-6 font-weight-bold"><%= @total_orders %></h2>
+        </div>
+        <div class="fs-1 text-white-50">
+          <i class="fa-solid fa-shopping-bag"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pending Reviews Card -->
+  <div class="col-md-4">
+    <div class="card card-stat bg-warning text-white p-4 h-100">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <h6 class="text-uppercase text-white-50 small">Pending Reviews</h6>
+          <h2 class="display-6 font-weight-bold"><%= @pending_reviews_count %></h2>
+        </div>
+        <div class="fs-1 text-white-50">
+          <i class="fa-solid fa-comment-dots"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4">
+  <!-- Recent Orders Table -->
+  <div class="col-lg-8">
+    <div class="card border-0 shadow-sm p-4">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="m-0">Recent Orders</h5>
+        <a href="/admin/orders" class="btn btn-outline-primary btn-sm">View All</a>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>Order ID</th>
+              <th>Customer</th>
+              <th>Status</th>
+              <th>Total</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if @recent_orders.any? %>
+              <% @recent_orders.each do |order| %>
+                <tr>
+                  <td><strong>#<%= order.id %></strong></td>
+                  <td><%= order.user&.first_name || 'Guest' %> <%= order.user&.last_name %></td>
+                  <td>
+                    <span class="badge bg-<%= case order.status
+                      when 'delivered' then 'success'
+                      when 'pending' then 'warning'
+                      when 'cancelled', 'refunded' then 'danger'
+                      else 'info' end %> text-capitalize">
+                      <%= order.status %>
+                    </span>
+                  </td>
+                  <td>₹<%= number_with_precision(order.total_amount, precision: 2) %></td>
+                  <td><%= order.created_at.strftime("%b %d, %Y") %></td>
+                </tr>
+              <% end %>
+            <% else %>
+              <tr>
+                <td colspan="5" class="text-center text-muted py-3">No orders placed yet.</td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Low Stock Warning & Recent Reviews -->
+  <div class="col-lg-4">
+    <!-- Low Stock Alert -->
+    <div class="card border-danger shadow-sm p-4 mb-4">
+      <h5 class="text-danger mb-3"><i class="fa-solid fa-circle-exclamation me-2"></i>Low Stock Alerts</h5>
+      <ul class="list-group list-group-flush">
+        <% if @low_stock_products.any? %>
+          <% @low_stock_products.each do |product| %>
+            <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+              <span class="text-truncate" style="max-width: 200px;"><%= product.name %></span>
+              <span class="badge bg-danger rounded-pill"><%= product.stock %> left</span>
+            </li>
+          <% end %>
+        <% else %>
+          <li class="list-group-item text-muted px-0 text-center">All products are well stocked!</li>
+        <% end %>
+      </ul>
+    </div>
+
+    <!-- Recent Reviews -->
+    <div class="card border-0 shadow-sm p-4">
+      <h5 class="mb-3">Recent Reviews</h5>
+      <% if @recent_reviews.any? %>
+        <div class="list-group list-group-flush">
+          <% @recent_reviews.each do |review| %>
+            <div class="list-group-item px-0 py-3">
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <span class="font-weight-bold"><%= review.user&.first_name || 'Guest' %></span>
+                <span class="text-warning">
+                  <% review.rating.times do %>
+                    <i class="fa-solid fa-star small"></i>
+                  <% end %>
+                </span>
+              </div>
+              <small class="text-muted text-truncate d-block mb-1">Product: <%= review.product.name %></small>
+              <p class="mb-0 text-muted small"><%= truncate(review.body, length: 100) %></p>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="text-muted text-center py-3 mb-0">No reviews yet.</p>
+      <% end %>
+    </div>
+  </div>
+</div>
