@@ -22,7 +22,7 @@ gem "bcrypt", "~> 3.1.7"
 gem "devise"
 gem "pundit"
 gem "ransack"
-gem "friendly_id", "~> 5.5.0"
+gem "friendly_id", "~> 5.7.0"
 gem "kaminari"
 gem "dotenv-rails", groups: [:development, :test]
 gem "razorpay"
