@@ -1,27 +1,20 @@
-# Database Configuration for NityaMWorld E-commerce
-# Using SQLite3 for local development/testing to bypass sandbox constraints,
-# and MySQL (mysql2 adapter) for production readiness.
-
 default: &default
-  adapter: sqlite3
-  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
-  timeout: 5000
-
-development:
-  <<: *default
-  database: storage/development.sqlite3
-
-test:
-  <<: *default
-  database: storage/test.sqlite3
-
-production:
   adapter: mysql2
   encoding: utf8mb4
   collation: utf8mb4_unicode_ci
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
   host: localhost
-  database: nityamworld_production
   username: rails
   password: password
-  socket: /var/run/mysqld/mysqld.sock
+
+development:
+  <<: *default
+  database: nityamworld_development
+
+test:
+  <<: *default
+  database: nityamworld_test
+
+production:
+  <<: *default
+  database: nityamworld_production
