@@ -2,7 +2,7 @@ class CreateAddresses < ActiveRecord::Migration[8.1]
   def change
     create_table :addresses do |t|
       t.references :user, type: :bigint ,foreign_key: true, null: true
-      t.string :address_type, null: false # "shipping" or "billing"
+      t.string :address_type, null: false # "shipping" or "billing."
       t.string :full_name, null: false
       t.string :address_line1, null: false
       t.string :address_line2
