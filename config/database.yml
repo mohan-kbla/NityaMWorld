@@ -20,8 +20,8 @@ production:
   encoding: utf8mb4
   collation: utf8mb4_unicode_ci
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
-  host: <%= ENV.fetch("DB_HOST") { "localhost" } %>
-  database: <%= ENV.fetch("DB_DATABASE") { "nityamworld_production" } %>
-  username: <%= ENV.fetch("DB_USERNAME") { "root" } %>
-  password: <%= ENV.fetch("DB_PASSWORD") { "" } %>
+  host: localhost
+  database: nityamworld_production
+  username: rails
+  password: password
   socket: /var/run/mysqld/mysqld.sock
