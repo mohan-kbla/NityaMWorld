@@ -26,4 +26,13 @@ class User < ApplicationRecord
   def customer?
     role == "customer"
   end
+
+  # Ransack search setup
+  def self.ransackable_attributes(auth_object = nil)
+    ["id", "email", "first_name", "last_name", "phone", "role", "created_at", "updated_at"]
+  end
+
+  def self.ransackable_associations(auth_object = nil)
+    ["orders", "addresses", "reviews", "wishlists"]
+  end
 end

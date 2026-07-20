@@ -1,10 +1,10 @@
 class UserPolicy < ApplicationPolicy
   def index?
-    user.admin?
+    user.admin? || user.staff?
   end
 
   def show?
-    user.admin?
+    user.admin? || user.staff?
   end
 
   def create?

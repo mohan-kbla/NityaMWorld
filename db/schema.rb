@@ -50,7 +50,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_15_161635) do
     t.string "phone", null: false
     t.string "state", null: false
     t.datetime "updated_at", null: false
-    t.integer "user_id"
+    t.bigint "user_id"
     t.string "zip_code", null: false
     t.index ["address_type"], name: "index_addresses_on_address_type"
     t.index ["user_id"], name: "index_addresses_on_user_id"

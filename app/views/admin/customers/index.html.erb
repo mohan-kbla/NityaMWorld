@@ -1,0 +1,102 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h2 class="h3 fw-bold text-dark m-0">
+      <i class="fa-solid fa-users text-primary me-2"></i>Customers Management
+    </h2>
+    <p class="text-muted small m-0 mt-1">View registered customers, their contact details, and purchase history.</p>
+  </div>
+</div>
+
+<!-- Search & Filters -->
+<div class="card border-0 shadow-sm p-3 p-md-4 mb-4 rounded-3 bg-white">
+  <%= search_form_for [:admin, @q], url: admin_customers_path, class: "row g-3 align-items-end" do |f| %>
+    <div class="col-12 col-md-4">
+      <%= f.label :first_name_or_last_name_cont, "Customer Name", class: "form-label small fw-semibold text-secondary text-nowrap mb-1" %>
+      <%= f.search_field :first_name_or_last_name_cont, class: "form-control", placeholder: "Search name..." %>
+    </div>
+    
+    <div class="col-12 col-md-4">
+      <%= f.label :email_cont, "Email Address", class: "form-label small fw-semibold text-secondary text-nowrap mb-1" %>
+      <%= f.search_field :email_cont, class: "form-control", placeholder: "Search email..." %>
+    </div>
+
+    <div class="col-12 col-md-4 d-flex gap-2">
+      <button type="submit" class="btn btn-primary text-nowrap flex-fill">
+        <i class="fa-solid fa-filter me-1"></i> Filter
+      </button>
+      <a href="/admin/customers" class="btn btn-outline-secondary text-nowrap flex-fill">
+        <i class="fa-solid fa-rotate-left me-1"></i> Reset
+      </a>
+    </div>
+  <% end %>
+</div>
+
+<!-- Customers Table -->
+<div class="card border-0 shadow-sm rounded-3 overflow-hidden bg-white mb-4">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="bg-light border-bottom">
+        <tr>
+          <th class="ps-4 text-secondary text-uppercase fs-7 fw-bold" style="letter-spacing: 0.5px;">Customer</th>
+          <th class="text-secondary text-uppercase fs-7 fw-bold" style="letter-spacing: 0.5px;">Phone</th>
+          <th class="text-center text-secondary text-uppercase fs-7 fw-bold" style="letter-spacing: 0.5px;">Total Orders</th>
+          <th class="text-secondary text-uppercase fs-7 fw-bold" style="letter-spacing: 0.5px;">Joined Date</th>
+          <th class="pe-4 text-end text-secondary text-uppercase fs-7 fw-bold" style="letter-spacing: 0.5px;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if @customers.any? %>
+          <% @customers.each do |customer| %>
+            <tr>
+              <td class="ps-4">
+                <div class="d-flex align-items-center gap-3">
+                  <div class="rounded-circle bg-primary bg-opacity-10 text-primary fw-bold d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; font-size: 14px;">
+                    <%= customer.first_name.first.upcase rescue 'C' %><%= customer.last_name.first.upcase rescue '' %>
+                  </div>
+                  <div>
+                    <div class="fw-semibold text-dark"><%= "#{customer.first_name} #{customer.last_name}".strip.presence || customer.email %></div>
+                    <small class="text-muted"><%= customer.email %></small>
+                  </div>
+                </div>
+              </td>
+              <td class="text-dark">
+                <%= customer.phone.presence || "-" %>
+              </td>
+              <td class="text-center">
+                <span class="badge bg-light text-dark border px-2.5 py-1.5 rounded-pill fw-semibold">
+                  <%= customer.orders.count %> orders
+                </span>
+              </td>
+              <td class="text-muted small">
+                <%= customer.created_at.strftime("%b %d, %Y") %>
+              </td>
+              <td class="pe-4 text-end">
+                <a href="/admin/customers/<%= customer.id %>" class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-medium text-nowrap">
+                  <i class="fa-solid fa-eye me-1"></i>View Profile
+                </a>
+              </td>
+            </tr>
+          <% end %>
+        <% else %>
+          <tr>
+            <td colspan="5" class="text-center text-muted py-5">
+              <i class="fa-solid fa-users fa-2x d-block mb-2 text-secondary opacity-50"></i>
+              No customers found matching your filter criteria.
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+  
+  <% if @customers.respond_to?(:total_pages) %>
+    <div class="px-4 py-3 border-top bg-light d-flex justify-content-between align-items-center flex-wrap gap-2">
+      <div class="small text-muted">
+        Showing <strong><%= @customers.offset_value + 1 %></strong> - <strong><%= [@customers.offset_value + @customers.length, @customers.total_count].min %></strong> of <strong><%= @customers.total_count %></strong> customers
+      </div>
+      <div>
+        <%= paginate @customers %>
+      </div>
+    </div>
+  <% end %>
+</div>

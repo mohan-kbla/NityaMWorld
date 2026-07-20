@@ -32,4 +32,13 @@ class Order < ApplicationRecord
       nil
     end
   end
+
+  # Ransack search setup
+  def self.ransackable_attributes(auth_object = nil)
+    ["id", "status", "payment_status", "payment_method", "total_amount", "subtotal_amount", "shipping_amount", "discount_amount", "tracking_number", "carrier", "notes", "created_at", "updated_at", "user_id"]
+  end
+
+  def self.ransackable_associations(auth_object = nil)
+    ["user", "shipping_address", "billing_address", "order_items", "products"]
+  end
 end
